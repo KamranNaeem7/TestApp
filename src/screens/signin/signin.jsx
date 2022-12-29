@@ -1,75 +1,114 @@
-import { StyleSheet, Image, ScrollView, TextInput, View } from "react-native";
+import { useState } from "react";
+import { View, ScrollView, StyleSheet, Text } from "react-native";
+import Toast from "react-native-toast-message";
+
 import { BButton } from "../../components/BButton";
+import { Header } from "../../components/header";
+import { Input } from "../../components/input";
+import { TextButton } from "../../components/textButton";
+import { Loading } from "../../components/loading";
+import { colors, modifiers } from "../../utils/theme";
+import { firebase } from "../../services/firebaseConfig";
+import { showToast } from "../../utils/help";
+import {
+  getUserId,
+  storeUserSession,
+  getUserLoggedInStatus,
+} from "../../services/storageService";
 
 function Signin({ navigation }) {
-  const goToHome = () => {
-    navigation.navigate("Home");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+
+  const loggedIn = getUserLoggedInStatus();
+  const UID = getUserId();
+  console.log("my_uid", UID);
+  console.log("user_logged", loggedIn);
+
+  const handleShowPass = () => {
+    if (showPass === true) {
+      setShowPass(false);
+    } else if (showPass === false) {
+      setShowPass(true);
+    }
   };
+
+  const goToSignup = () => {
+    navigation.navigate("Signup");
+  };
+
+  const onSignin = () => {
+    setShowLoading(true);
+
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then((authResponse) => {
+        setShowLoading(false);
+
+        const userUid = authResponse.user.uid;
+
+        storeUserSession(userUid, "true");
+
+        navigation.replace("Home");
+        showToast("success", "you are the authentic useer CONGO", "top");
+        //  now we need a session of user and also take him to goToHome()
+      })
+      .catch((authError) => {
+        setShowLoading(false);
+        showToast("error", authError.message, "top");
+      });
+  };
+
   return (
-    <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: "#fcd5ce" }}>
-      <View style={{ padding: 15 }}>
-        <Image
-          source={{
-            uri: "https://cdn.pixabay.com/photo/2022/11/19/18/45/gray-geese-7602847__340.jpg",
-          }}
-          style={{
-            width: 100,
-            height: 100,
-            resizeMode: "contain",
-            borderRadius: 50,
-            alignSelf: "center",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 10,
-          }}
+    <ScrollView
+      contentContainerStyle={{ flex: 1, backgroundColor: colors.bgColor }}
+    >
+      <Header title={"Sign in"} />
+      <View style={styles.formCon}>
+        <Input
+          placeholder={"Email"}
+          showIcon={true}
+          iconName={"mail-outline"}
+          onChange={setEmail}
         />
 
-        <View>
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="👱 Enter Your  Name"
-            placeholderTextColor="#3D348B"
-          />
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="#️⃣ Enter Your Number"
-            placeholderTextColor="#3D348B"
-          />
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="📧 Enter Your Email"
-            placeholderTextColor="#3D348B"
-          />
-          <TextInput
-            style={styles.inputContainer}
-            placeholder=" 🔒 Enter Your Password"
-            placeholderTextColor="#3D348B"
-            secureTextEntry={true}
-          />
+        <Input
+          placeholder={"Password"}
+          isSecure={!showPass}
+          showIcon={true}
+          onChange={setPassword}
+          iconName={showPass === false ? "eye-outline" : "eye-off-outline"}
+          onIconPress={handleShowPass}
+        />
+
+        <View style={styles.textBtnCon}>
+          <TextButton title={"Forgot your password?"} />
         </View>
-        <View>
-          <BButton title="SingIn" onButtonPress={goToHome}></BButton>
+        <BButton title={"Sign in"} onButtonPress={onSignin} />
+        <View style={styles.goToSignupCon}>
+          <TextButton
+            title={"Dont have an account yet signup"}
+            onPress={goToSignup}
+          />
         </View>
       </View>
+      {showLoading && <Loading />}
+      <Toast />
     </ScrollView>
   );
 }
 
 export { Signin };
+
 const styles = StyleSheet.create({
-  textStyle: {
-    fontSize: 25,
-    padding: 10,
-    fontWeight: "bold",
+  formCon: {
+    height: "60%",
     justifyContent: "center",
-    textAlign: "center",
-    color: "#3D348B",
+    paddingHorizontal: modifiers.containerPadding,
   },
-  inputContainer: {
-    padding: 10,
-    borderColor: "red",
-    borderRadius: 20,
-    borderWidth: 3,
-    margin: 5,
-  },
+  textBtnCon: { alignItems: "flex-end" },
+  goToSignupCon: { alignItems: "center" },
 });
