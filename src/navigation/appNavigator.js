@@ -11,6 +11,7 @@ import { Splash } from "../screens/splash/splash";
 import { Settings } from "../screens/settings/settings";
 import { Recipies } from "../screens/recipes/recipies";
 import { RecipeDetail } from "../screens/recipeDetail/recipeDetail";
+import { MyDrawer } from "./myDrawer";
 
 function MainNav() {
   const Stack = createNativeStackNavigator();
@@ -40,6 +41,7 @@ function MainNav() {
       <Tab.Screen name={"Main"} component={Main} />
       <Tab.Screen name={"WebPage"} component={WebPage} />
       <Tab.Screen name={"Settings"} component={Settings} />
+      <Tab.Screen name={"Drawer"} component={MyDrawer} />
     </Tab.Navigator>
   );
 

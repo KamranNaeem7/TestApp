@@ -19,6 +19,7 @@ import { Loading } from "../../components/loading";
 import { firebase } from "../../services/firebaseConfig";
 import { showToast } from "../../utils/help";
 import { BButton } from "../../components/BButton";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 const sliderHeight = 250;
 const slideHight = 250;
@@ -138,10 +139,6 @@ function Main({ navigation }) {
         onButtonPress={() => navigation.navigate("Recipies")}
       />
 
-      <Text style={{ fontSize: 50 }}>
-        {dayjs().diff(dayjs("1972-10-08"), "year")}
-      </Text>
-
       <Toast />
       <FloatingAction
         color={colors.primary}
@@ -158,6 +155,9 @@ function Main({ navigation }) {
 }
 
 export { Main };
+
+const myDrawer = createDrawerNavigator();
+console.log(myDrawer);
 
 const styles = StyleSheet.create({
   wrapper: {},
